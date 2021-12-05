@@ -1,4 +1,6 @@
-/* 3Pi+ LineFollowerHalfSize_v1.0 
+/* 3Pi+ LineFollowerHalfSize_v1.0
+Branch digital-dev
+
 Based on 3PiPlus LineFollowerFullSize v3.1
 Speeds and PD values adjusted for 30:1 geared motor
 
@@ -49,6 +51,7 @@ const uint8_t lapTotal = 4;           // Total number of laps to run before stop
 const uint16_t timeOut = 2000;        // Timeout for line sensors
 const float encCal = 3.55;            // Number of encoder clicks per mm travelled
 const float encMult = 0.90;           // Speed multiplier for encoder
+const float accelRate = 0.3;          // Rate of acceleration in motor speed units per ms
 
 ////////////////////////
 //                    //
@@ -290,6 +293,16 @@ void drive_mm(int16_t distance)
   }
 }
 
+// Procedure to accelerate to current maxSpeed at constant rate
+void accelerate()
+{
+	uint32_t startAccel = millis();
+  while (maxSpeed < MAX[lapCount])
+  {
+    maxSpeed = accelRate * (millis() - startAccel);
+  }
+}
+
 void setup()
 {
   // Set up line sensor
@@ -327,6 +340,65 @@ void setup()
   }
 }
 
+// Main loop runs forever
+void loop() 
+{
+  // Initialise run variables
+  lapCount = 0;
+  sfCount = 0;
+  stop = false;
+
+  // Display lap number
+  lcd.clear();
+  lcd.gotoXY(0,0);
+  lcd.print("Lap ");
+  lcd.print(lapCount);
+  
+  // Play music and wait for it to finish before we start driving.
+  buzzer.play("L16 cdegreg4");
+  while (buzzer.isPlaying());
+
+  // Run specified number of laps
+  while (lapCount < lapTotal)
+  {
+    // Accelerate to current maxSpeed
+    accelerate();
+    maxSpeed = MAX[lapCount];
+
+    // Run lap until stop flag raised
+    while (!stop) 
+    {
+      // Read line sensors and set motors
+      readSensors();
+      setMotors();
+
+      // Test for start/finish line
+      sfCheck();
+    }
+
+    // Update lap count and display
+    lapCount++;
+    lcd.clear();
+    lcd.gotoXY(0,0);
+    lcd.print("Lap ");
+    lcd.print(lapCount);
+
+    // Reset stop flag
+    stop = false;
+
+    // Run further 50mm then stop
+    drive_mm(50);
+    motors.setSpeeds(0,0);
+
+    // Pause before restart
+    delay(2500);
+  }
+
+  // Halt until button C is pressed
+  while (!buttonC.isPressed()){delay(10);}
+}
+
+/*
 // Main loop runs forever
 void loop() 
 {
@@ -389,7 +461,7 @@ void loop()
     lapCount++;
   }
 
-  
+*/  
 
 /*  // Display encCount and lap length on lcd
   lcd.clear();
@@ -433,10 +505,11 @@ void loop()
   lcd.gotoXY(7,1);
   lcd.print("v");
 */
-  while (!buttonC.isPressed()){delay(10);}
+/*  while (!buttonC.isPressed()){delay(10);}
   stop = false;
 //  lapCount = 0;
 //  maxSpeed = MAX[lapCount];
   buzzer.play("L16 cdegreg4");
   while (buzzer.isPlaying());
 }
+*/
