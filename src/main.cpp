@@ -1,5 +1,5 @@
-/* 3Pi+ LineFollowerHalfSize_v1.6
-Branch digital-dev
+/* 3Pi+ LineFollowerHalfSize_v1.1
+Branch main
 
 Based on 3PiPlus LineFollowerFullSize v3.1
 Speeds and PD values adjusted for 30:1 geared motor
@@ -9,7 +9,7 @@ calculate position on line and 2 outer sensors for CD and SF
 
 Constant speed
 
-At high speeds the crossings can be missed.
+Works, but at high speeds the crossings can be missed.
 
 */
 
