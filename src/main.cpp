@@ -1,4 +1,4 @@
-/* 3Pi+ LineFollowerHalfSize_v1.0
+/* 3Pi+ LineFollowerHalfSize_v1.6
 Branch digital-dev
 
 Based on 3PiPlus LineFollowerFullSize v3.1
@@ -123,7 +123,6 @@ void calibrateSensors()
       motors.setSpeeds(calibrationSpeed, -calibrationSpeed);
       delay(20);
     }
-
     totalsensor.calibrate();
   }
   motors.setSpeeds(0, 0);
@@ -177,7 +176,6 @@ void readSensors()
   {
     linesensorValues[i] = totalsensorValues[i+1];
   }
-
   // Set SF and CD flags
   if (totalsensorValues[0] < 500) {cdFlag = true;} else {cdFlag = false;}
   if (totalsensorValues[4] < 500) {sfFlag = true;} else {sfFlag = false;}
@@ -334,7 +332,7 @@ void setup()
       {
         readSensors();
         displaySensors(); 
-        delay(100);
+        delay(50);
       }
     }
   }
@@ -395,121 +393,10 @@ void loop()
   }
 
   // Halt until button C is pressed
-  while (!buttonC.isPressed()){delay(10);}
-}
-
-/*
-// Main loop runs forever
-void loop() 
-{
-  // Initialise run variables
-  lapCount = 0;
-  sfCount = 0;
-  stop = false;
-  maxSpeed = MAX[lapCount];
-  encoders.getCountsAndResetRight();
-
-  // Display lap number
   lcd.clear();
   lcd.gotoXY(0,0);
-  lcd.print("Lap ");
-  lcd.print(lapCount);
-  
-  // Play music and wait for it to finish before we start driving.
-  buzzer.play("L16 cdegreg4");
-  while (buzzer.isPlaying());
-
-  // Run mapping lap
-  while (!stop) // Run until stop flag raised
-  {
-    // Read line sensors and set motors
-    readSensors();
-    setMotors();
-
-    // Test for start/finish line, adjust lapCount
-    sfCheck();
-  }
-  // Run further 100mm then stop and read encoder
-  drive_mm(100);
-  motors.setSpeeds(0,0);
-  encCount = encoders.getCountsRight();
-  lapCount++;
-
-  // Run remaining laps using encoder
-  while (lapCount < lapTotal)
-  {
-    // Update lap count on lcd
-    lcd.clear();
-    lcd.gotoXY(0,0);
-    lcd.print("Lap ");
-    lcd.print(lapCount);
-
-    // Initialise lap variables and pause before restart
-    maxSpeed = MAX[lapCount];
-    encoders.getCountsAndResetRight();
-    int32_t encCountNew = encCount * MAX[lapCount] / MAX[0];
-    delay(2500);
-
-    while (encoders.getCountsRight() < encCountNew)
-    {
-      // Read line sensors and set motors
-      readSensors();
-      setMotors();
-    }
-    // Stop and increment lap count
-    motors.setSpeeds(0,0);
-    lapCount++;
-  }
-
-*/  
-
-/*  // Display encCount and lap length on lcd
-  lcd.clear();
-  lcd.gotoXY(0,0);
-  lcd.print(encCount);
+  lcd.print("Rept run");
   lcd.gotoXY(0,1);
-  int32_t lapLength = encCount/encCal;
-  lcd.print(lapLength);
-  */
-/*
-    // If just completed a lap then stop and re-start
-//    if (lapCount > currentLap)
-    if (stop == true)
-    {
-      //motors.setSpeeds(80, 80);
-      drive_mm(100);
-      motors.setSpeeds(0, 0);
-      
-      // Wait 2.5 sec then set new speed and restart
-      delay(2500);
-      maxSpeed = MAX[lapCount];
-      stop = false;
-    }
-
-    // Stop if last lap
-    if(lapCount == lapTotal) {stop = true;}
-
-    // Test for button C pressed
-    if(buttonC.isPressed()){stop = true;}
-  }
-*/
-/*
-  // Run for further 100mm then stop motors
-  drive_mm(100);
-  motors.setSpeeds(0, 0);
-*/
-  // Reset and repeat run if Button C pressed
-/*  lcd.clear();
-  lcd.gotoXY(2,0);
-  lcd.print("Again");
-  lcd.gotoXY(7,1);
-  lcd.print("v");
-*/
-/*  while (!buttonC.isPressed()){delay(10);}
-  stop = false;
-//  lapCount = 0;
-//  maxSpeed = MAX[lapCount];
-  buzzer.play("L16 cdegreg4");
-  while (buzzer.isPlaying());
+  lcd.print("       v");
+  while (!buttonC.isPressed()){delay(50);}
 }
-*/
