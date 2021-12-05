@@ -321,7 +321,7 @@ void setup()
       {
         readSensors();
         displaySensors(); 
-        delay(250);
+        delay(100);
       }
     }
   }
