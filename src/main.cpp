@@ -73,7 +73,8 @@ int8_t sfCount = 0;           // Curent number of start/finish markers passed
 int32_t encCount = 0;         // Lap length as measured by right encoder
 bool sfFlag = false;          // Start/finish marker detected
 bool cdFlag = false;          // Curve marker detected
-uint16_t markerCount = 0;     // Number of side markers counted on mapping lap
+uint16_t markerCount = 0;     // Current number of side markers counted
+uint16_t markerTotal = 0;     // Total number of side markers (inc. cross)
 
 
 // Check battery voltage, stop and warn if low
@@ -345,6 +346,24 @@ void accelerate()
   }
 }
 
+// Procedure at end of each lap
+void endLap()
+{
+  // Update lap count and display
+  lapCount++;
+  lcd.clear();
+  lcd.gotoXY(0,0);
+  lcd.print("Lap ");
+  lcd.print(lapCount);
+
+  // Reset stop flag
+  stop = false;
+
+  // Run further 50mm then stop
+  drive_mm(50);
+  motors.setSpeeds(0,0);
+}
+
 void setup()
 {
   // Set up line sensor
@@ -400,6 +419,7 @@ void loop()
   buzzer.play("L16 cdegreg4");
   while (buzzer.isPlaying());
 
+/*
   // Run specified number of laps
   while (lapCount < lapTotal)
   {
@@ -445,4 +465,32 @@ void loop()
   lcd.gotoXY(0,1);
   lcd.print("       v");
   while (!buttonC.isPressed()){delay(50);}
+}
+*/
+
+  // Run mapping lap
+  markerCount = 0;
+  accelerate();
+  maxSpeed = MAX[lapCount];
+  while (!stop)
+  {
+    // Read line sensors and set motors
+    readSensors();
+    setMotors();
+
+    // Test for side markers
+    markerCheck();
+  }
+  // End of lap
+  endLap();
+
+  // Update markerTotal
+  markerTotal = markerCount;
+
+  // Display markerTotal and stop
+  lcd.clear();
+  lcd.gotoXY(0,0);
+  lcd.print(markerTotal);
+  while(true){delay(10);}
+
 }
