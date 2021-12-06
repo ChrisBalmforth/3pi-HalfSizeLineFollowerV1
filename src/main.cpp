@@ -107,6 +107,10 @@ void checkBattery()
 void calibrateSensors()
 {
   lcd.clear();
+  lcd.gotoXY(0,0);
+  lcd.print("Calibr");
+  lcd.gotoXY(0,1);
+  lcd.print(" ating");
 
   // Wait 1 second and then begin automatic sensor calibration
   // by rotating in place to sweep the sensors over the line
@@ -126,6 +130,7 @@ void calibrateSensors()
     totalsensor.calibrate();
   }
   motors.setSpeeds(0, 0);
+  lcd.clear();
 }
 
 // Calculate position on line from array of line sensor values
@@ -250,7 +255,7 @@ void sfCheck()
 		// if CD sensor sees white then must be crossing
 		if (cdFlag == true) {cross = 1;}
 	}
-		// if not crossroad then increment sf_count
+		// if no crossing then increment sf_count
 		if (cross == 0) {sfCount++; buzzer.play("!L16 a");}
 
     // if end of lap raise stop flag
