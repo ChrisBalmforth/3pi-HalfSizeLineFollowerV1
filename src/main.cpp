@@ -240,54 +240,8 @@ void setMotors()
   else {motors.setSpeeds(maxSpeed, maxSpeed+powerDifference);}
 }
 
-// Procedure to check start/finish sensor
-// and update sf_count
-void sfCheck()
-{
-	// If SF sensor sees black then exit
-	if (sfFlag == false) {return;}
-	
-	// Initialise crossing flag
-	bool cross = 0;
-	
-	// While SF sensor sees white look for CD marker
-	while (sfFlag == true)
-	{
-    readSensors();
-    setMotors();
-		// if CD sensor sees white then must be crossing
-		if (cdFlag == true) {cross = 1;}
-	}
-		// if no crossing then increment sf_count
-		if (cross == 0) {sfCount++; buzzer.play("!L16 a");}
-
-    // if end of lap raise stop flag
-		if (sfCount > 1) {sfCount = 0; stop = true;}
-}
-
-// Procedure to check curve detect sensor
-void cdCheck()
-{
-	// If CD sensor sees black then exit
-	if (cdFlag == false) {return;}
-	
-	// Initialise crossing flag
-	bool cross = 0;
-	
-	// While CD sensor sees white look for SF marker
-	while (cdFlag == true)
-	{
-    readSensors();
-    setMotors();
-		// if SF sensor sees white then must be crossing
-		if (sfFlag == true) {cross = 1;}
-	}
-		// if not crossroad then beep
-		if (cross == 0) {buzzer.play("!L16 c");}
-}
-
-// Procedure to check for side marker
-void markerCheck()
+// Procedure to thoroughly check for side markers
+void markerFullcheck()
 {
 	// Return if both side sensors see black
 	if ((sfFlag == false) and (cdFlag == false)) {return;}
@@ -321,6 +275,22 @@ void markerCheck()
 
     return;
   }
+}
+
+// Procedure to quickly check for any side marker or crossing
+void markerQuickcheck()
+{
+	// Return if both side sensors see black
+  if ((sfFlag == false) and (cdFlag == false)) {return; }
+  
+  // Carry on steering if marker or crossing detected
+  while (sfFlag or cdFlag)
+  {
+    readSensors();
+    setMotors();    
+  }
+  // Increment side marker count at end of marker and return
+  markerCount++;
 }
 
 // Procedure to drive forwards a specified number of mm
@@ -390,6 +360,8 @@ void setup()
   {
     if (buttonA.isPressed())
     {
+      // Beep and calibrate
+      buzzer.play("!L16 a");
       calibrateSensors();
       while (!buttonB.isPressed()) 
       {
@@ -419,40 +391,56 @@ void loop()
   buzzer.play("L16 cdegreg4");
   while (buzzer.isPlaying());
 
-/*
-  // Run specified number of laps
+  // Run mapping lap
+  markerCount = 0;
+  accelerate();
+  maxSpeed = MAX[lapCount];
+  while (!stop)
+  {
+    // Read line sensors and set motors
+    readSensors();
+    setMotors();
+
+    // Full test for side markers
+    markerFullcheck();
+  }
+  // End of lap
+  endLap();
+
+  // Update markerTotal
+  markerTotal = markerCount;
+
+  // Display markerTotal
+  lcd.clear();
+  lcd.gotoXY(0,0);
+  lcd.print(markerTotal);
+
+  // Pause before restart
+  delay(2500);
+
+  // Run remaining laps
   while (lapCount < lapTotal)
   {
+    // Reset marker counter
+    markerCount = 0;
+    
     // Accelerate to current maxSpeed
     accelerate();
     maxSpeed = MAX[lapCount];
 
-    // Run lap until stop flag raised
-    while (!stop) 
+    // Run lap until end of markers
+    while (markerCount < markerTotal) 
     {
       // Read line sensors and set motors
       readSensors();
       setMotors();
 
-      // Test for start/finish line
-      //sfCheck();
-      // Test for side markers
-      markerCheck();
+      // Quick check for side markers
+      markerQuickcheck();
     }
 
-    // Update lap count and display
-    lapCount++;
-    lcd.clear();
-    lcd.gotoXY(0,0);
-    lcd.print("Lap ");
-    lcd.print(lapCount);
-
-    // Reset stop flag
-    stop = false;
-
-    // Run further 50mm then stop
-    drive_mm(50);
-    motors.setSpeeds(0,0);
+    // End of lap
+    endLap();
 
     // Pause before restart
     delay(2500);
@@ -465,32 +453,4 @@ void loop()
   lcd.gotoXY(0,1);
   lcd.print("       v");
   while (!buttonC.isPressed()){delay(50);}
-}
-*/
-
-  // Run mapping lap
-  markerCount = 0;
-  accelerate();
-  maxSpeed = MAX[lapCount];
-  while (!stop)
-  {
-    // Read line sensors and set motors
-    readSensors();
-    setMotors();
-
-    // Test for side markers
-    markerCheck();
-  }
-  // End of lap
-  endLap();
-
-  // Update markerTotal
-  markerTotal = markerCount;
-
-  // Display markerTotal and stop
-  lcd.clear();
-  lcd.gotoXY(0,0);
-  lcd.print(markerTotal);
-  while(true){delay(10);}
-
 }
