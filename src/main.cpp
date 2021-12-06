@@ -1,16 +1,14 @@
-/* 3Pi+ LineFollowerHalfSize_v1.1
-Branch testing
-
-Trying a slow mapping lab to count side markers including crossings
-then fast laps don't look for crossings
-
-Based on 3PiPlus LineFollowerFullSize v3.1
-Speeds and PD values adjusted for 30:1 geared motor
+/* 3Pi+ LineFollowerHalfSize v1.2 - constant speed
+Branch main
 
 Reads all 5 sensors at once then uses 3 middle sensors to 
 calculate position on line and 2 outer sensors for CD and SF
 
-Constant speed
+Uses a slow mapping lap to count side markers including crossings
+then fast laps don't need to look for crossings
+
+Based on 3PiPlus LineFollowerFullSize v3.1
+Speeds and PD values adjusted for 30:1 geared motor
 
 */
 
