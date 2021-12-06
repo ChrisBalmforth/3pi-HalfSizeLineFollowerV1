@@ -12,8 +12,6 @@ calculate position on line and 2 outer sensors for CD and SF
 
 Constant speed
 
-Works, but at high speeds the crossings can be missed.
-
 */
 
 #include <Pololu3piPlus32U4.h>
@@ -75,6 +73,7 @@ int8_t sfCount = 0;           // Curent number of start/finish markers passed
 int32_t encCount = 0;         // Lap length as measured by right encoder
 bool sfFlag = false;          // Start/finish marker detected
 bool cdFlag = false;          // Curve marker detected
+uint16_t markerCount = 0;     // Number of side markers counted on mapping lap
 
 
 // Check battery voltage, stop and warn if low
@@ -286,6 +285,43 @@ void cdCheck()
 		if (cross == 0) {buzzer.play("!L16 c");}
 }
 
+// Procedure to check for side marker
+void markerCheck()
+{
+	// Return if both side sensors see black
+	if ((sfFlag == false) and (cdFlag == false)) {return;}
+	
+  // Initialise marker detect flags
+  bool sfDetect = false;
+  bool cdDetect = false;
+	
+  // Keep running to end of side marker
+	while ((sfFlag == true) or (cdFlag == true))
+	{
+    readSensors();
+    setMotors();    
+    if (sfFlag == true) {sfDetect = true;}
+    if (cdFlag == true) {cdDetect = true;}
+	}
+  // If crossing increment markerCount and return
+  if ((sfDetect == true) and (cdDetect == true))
+  {markerCount++; return;}
+
+  // If CD marker increment markerCount and return
+  if (cdDetect == true) {markerCount++; buzzer.play("!L16 c"); return;}
+
+  // If SF marker increment markerCount and sfCount
+  if (sfDetect == true)
+  {
+    markerCount++; sfCount++; buzzer.play("!L16 a");
+
+    // if end of lap raise stop flag
+    if (sfCount > 1) {sfCount = 0; stop = true;}
+
+    return;
+  }
+}
+
 // Procedure to drive forwards a specified number of mm
 // following the line at the current speed
 void drive_mm(int16_t distance)
@@ -379,7 +415,9 @@ void loop()
       setMotors();
 
       // Test for start/finish line
-      sfCheck();
+      //sfCheck();
+      // Test for side markers
+      markerCheck();
     }
 
     // Update lap count and display
