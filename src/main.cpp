@@ -1,4 +1,4 @@
-/* 3Pi+ LineFollowerHalfSize v1.2 - constant speed
+/* 3Pi+ LineFollowerHalfSize v1 - constant speed
 Branch main
 
 Reads all 5 sensors at once then uses 3 middle sensors to 
