@@ -1,5 +1,4 @@
 /* 3Pi+ LineFollowerHalfSize v1 - constant speed
-Branch trimmed
 
 Reads all 5 sensors at once then uses 3 middle sensors to 
 calculate position on line and 2 outer sensors for CD and SF
