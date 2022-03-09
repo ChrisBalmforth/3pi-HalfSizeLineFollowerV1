@@ -1,5 +1,5 @@
 /* 3Pi+ LineFollowerHalfSize v1 - constant speed
-Branch main
+Branch trimmed
 
 Reads all 5 sensors at once then uses 3 middle sensors to 
 calculate position on line and 2 outer sensors for CD and SF
@@ -238,7 +238,7 @@ void setMotors()
 }
 
 // Procedure to thoroughly check for side markers
-void markerFullcheck()
+void markerFullCheck()
 {
 	// Return if both side sensors see black
 	if ((sfFlag == false) and (cdFlag == false)) {return;}
@@ -259,8 +259,8 @@ void markerFullcheck()
   if ((sfDetect == true) and (cdDetect == true))
   {markerCount++; return;}
 
-  // If CD marker increment markerCount and return
-  if (cdDetect == true) {markerCount++; buzzer.play("!L16 c"); return;}
+  // If CD marker sound buzzer and return
+  if (cdDetect == true) {buzzer.play("!L16 c"); return;}
 
   // If SF marker increment markerCount and sfCount
   if (sfDetect == true)
@@ -274,19 +274,19 @@ void markerFullcheck()
   }
 }
 
-// Procedure to quickly check for any side marker or crossing
+// Procedure to quickly check for start/finish marker or crossing
 void markerQuickcheck()
 {
-	// Return if both side sensors see black
-  if ((sfFlag == false) and (cdFlag == false)) {return; }
+	// Return if start/finish sensor sees black
+  if (sfFlag == false) {return; }
   
-  // Carry on steering if marker or crossing detected
-  while (sfFlag or cdFlag)
+  // Carry on steering if sf marker or crossing detected
+  while (sfFlag)
   {
     readSensors();
     setMotors();    
   }
-  // Increment side marker count at end of marker and return
+  // Increment marker count at end of sf marker and return
   markerCount++;
 }
 
@@ -300,16 +300,6 @@ void drive_mm(int16_t distance)
     // Read line sensors and set motors to follow line
     readSensors();
     setMotors();
-  }
-}
-
-// Procedure to accelerate to current maxSpeed at constant rate
-void accelerate()
-{
-	uint32_t startAccel = millis();
-  while (maxSpeed < MAX[lapCount])
-  {
-    maxSpeed = accelRate * (millis() - startAccel);
   }
 }
 
@@ -390,7 +380,6 @@ void loop()
 
   // Run mapping lap
   markerCount = 0;
-  accelerate();
   maxSpeed = MAX[lapCount];
   while (!stop)
   {
@@ -399,7 +388,7 @@ void loop()
     setMotors();
 
     // Full test for side markers
-    markerFullcheck();
+    markerFullCheck();
   }
   // End of lap
   endLap();
@@ -421,8 +410,7 @@ void loop()
     // Reset marker counter
     markerCount = 0;
     
-    // Accelerate to current maxSpeed
-    accelerate();
+    // Set current maxSpeed
     maxSpeed = MAX[lapCount];
 
     // Run lap until end of markers
