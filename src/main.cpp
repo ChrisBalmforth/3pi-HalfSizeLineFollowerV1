@@ -52,7 +52,6 @@ const uint16_t calibrationSpeed = 80; // Speed during calibration
 const uint8_t lapTotal = 4;           // Total number of laps to run before stopping
 const uint16_t timeOut = 2000;        // Timeout for line sensors
 const float encCal = 3.55;            // Number of encoder clicks per mm travelled
-const float accelRate = 0.3;          // Rate of acceleration in motor speed units per ms
 
 ////////////////////////
 //                    //
