@@ -1,18 +1,22 @@
-/* 3Pi+ LineFollowerHalfSize v1 - constant speed
+/* 3Pi+ LineFollower v1 - constant speed
 
-Reads all 5 sensors at once then uses 3 middle sensors to 
-calculate position on line and 2 outer sensors for CD and SF
+Based on the Pololu 3pi+ example LineFollowerPID
+
+Works with full size or half size robots by adjusting PD values and 
+motor speeds. Both versions use 3 centre sensors for line sensing,
+half size version uses 2 outer sensors for marker detection and full
+size version uses external digital sensors connected in their place
+
+Reads all 5 sensors at once then uses 3 middle sensors to calculate 
+position on line and 2 outer sensors to detect start/finish and curve
+markers
 
 Uses a slow mapping lap to count side markers including crossings
 then fast laps don't need to look for crossings
 
-Based on 3PiPlus LineFollowerFullSize v3.1
-Speeds and PD values adjusted for 30:1 geared motor
-
 */
 
 #include <Pololu3piPlus32U4.h>
-#include <PololuMenu.h>
 
 using namespace Pololu3piPlus32U4;
 
@@ -30,8 +34,8 @@ Encoders encoders;
 //     PD values      //
 //                    //
 ////////////////////////
-const float KP = 0.45;	// timeout = 2000
-const float KD	= 4.0;  // timeout = 2000
+const float KP = 0.45;	//
+const float KD	= 4.0;  //
 
 ////////////////////////
 //                    //
